@@ -1,21 +1,19 @@
-import express from "express";
 import { Router } from "express";
-import cloudinary from "../utils/cloudinary";
-import multer from "../middleware/uploadMiddleware";
+import cloudinary from "../utils/cloudinary.js";
+import upload from "../middleware/uploadMiddleware.js";
 
 const router = Router();
 
-router.post("/upload", multer.single("image"), async (req, res) => {
-  cloudinary.uploader.upload(req.file.path, (error, result) => {
-    if (error) {
-      console.log(error);
-      res.status(500).json({ success: false, message: "Image upload failed" });
-    }
-
+router.post("/upload", upload.single("image"), async (req, res) => {
+  try {
+    const result = await cloudinary.uploader.upload(req.file.path);
     res
       .status(200)
       .json({ success: true, message: "Image uploaded", data: result });
-  });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Image upload failed" });
+  }
 });
 
-module.exports = router;
+export default router;
