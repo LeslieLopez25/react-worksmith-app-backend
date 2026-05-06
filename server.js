@@ -34,8 +34,11 @@ app.use(
 app.get("/health", (req, res) => {
   res.status(200).json({
     status: "ok",
-    message: "Worksmith API is healthy",
   });
+});
+
+app.get("/", (req, res) => {
+  res.status(200).json({ message: "Worksmith API is running" });
 });
 
 app.use("/api/auth", authRoutes);
