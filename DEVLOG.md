@@ -238,3 +238,13 @@ PORT=7000
 
 - Added 2 more fields to the task schema; urgency and taskType.
 - These 2 new fields will be for the task board on the frontend so that you can add tags showing the level of urgency for your task board items and tags to indicate showing what kind of task it is.
+
+---
+
+## September 9, 2026
+
+### Updated
+
+#### **task.js**
+
+- Added "blocked" to task schema in the enum as another category was added in the frontend.
