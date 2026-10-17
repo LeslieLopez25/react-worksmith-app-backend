@@ -93,6 +93,10 @@ Key decisions:
 - JWT token is signed on login and stored in an httpOnly cookie
 - Cookie is cleared on logout using res.clearCookie()
 
+## October 17, 2026
+
+- Added getMe route.
+
 **Bugs fixed:**
 
 - Missing import statements for bcrypt and jwt
@@ -248,3 +252,13 @@ PORT=7000
 #### **task.js**
 
 - Added "blocked" to task schema in the enum as another category was added in the frontend.
+
+---
+
+## October 17, 2026
+
+### Updated
+
+#### **authRoutes.js**
+
+- Added getMe to authRoutes file.
