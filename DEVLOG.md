@@ -236,8 +236,6 @@ PORT=7000
 
 ## August 23, 2026
 
-### Updated
-
 #### **task.js**
 
 - Added 2 more fields to the task schema; urgency and taskType.
@@ -247,8 +245,6 @@ PORT=7000
 
 ## September 9, 2026
 
-### Updated
-
 #### **task.js**
 
 - Added "blocked" to task schema in the enum as another category was added in the frontend.
@@ -256,8 +252,6 @@ PORT=7000
 ---
 
 ## October 17, 2026
-
-### Updated
 
 #### **authRoutes.js**
 
