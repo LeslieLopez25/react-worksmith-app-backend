@@ -97,6 +97,10 @@ Key decisions:
 
 - Added getMe route.
 
+## October 22, 2026
+
+- Updated authController to return the user data and set the cookie.
+
 **Bugs fixed:**
 
 - Missing import statements for bcrypt and jwt
