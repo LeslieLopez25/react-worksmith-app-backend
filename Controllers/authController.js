@@ -24,9 +24,22 @@ export const register = async (req, res) => {
     });
 
     const savedUser = await user.save();
+
+    const token = jwt.sign({ id: savedUser._id }, process.env.JWT_SECRET, {
+      expiresIn: process.env.JWT_EXPIRES,
+    });
+    res.cookie("token", token, {
+      httpOnly: true,
+      maxAge: 1000 * 60 * 60 * 24,
+    });
     res.status(201).json({
       message: "Account created successfully",
-      user: { name: savedUser.name, email: savedUser.email },
+      user: {
+        _id: savedUser._id,
+        name: savedUser.name,
+        email: savedUser.email,
+        role: savedUser.role,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -58,7 +71,15 @@ export const loginUser = async (req, res) => {
       maxAge: 1000 * 60 * 60 * 24, // 1 day
     });
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).json({
+      message: "Login successfully",
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
