@@ -60,6 +60,9 @@ Key decisions:
 - images stored as an array of objects with url and filename
 - notes stored as an embedded array with content and createdAt
 - user field references the User model via ObjectId
+
+## October 24, 2026
+
 - Added isDraft and projectType in project.js
 
 ---
@@ -134,6 +137,9 @@ Key decisions:
 - All queries filter by both \_id and user to ensure users can only access their own projects
 - findOneAndUpdate used instead of findByIdAndUpdate to allow filtering by both \_id and user
 - populate("user", "name email") used to return user info with project data
+
+## October 24, 2026
+
 - Added filter for drafts in the controller to only return non-draft projects.
 
 **Bugs fixed:**
