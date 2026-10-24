@@ -60,6 +60,7 @@ Key decisions:
 - images stored as an array of objects with url and filename
 - notes stored as an embedded array with content and createdAt
 - user field references the User model via ObjectId
+- Added isDraft and projectType in project.js
 
 ---
 
@@ -107,7 +108,7 @@ Key decisions:
 - Duplicate user check was querying by name, email, and password — changed to email only
 - Was checking !User (the model) instead of !user (the query result) in login
 - No response was being sent after setting the cookie in login — added res.status(200).json()
-- clearcookie was lowercase — corrected to clearCookie
+- Clearcookie was lowercase — corrected to clearCookie
 - JWT_EXPIRE typo in authController.js didn't match JWT_EXPIRES in .env — added the missing S
 
 ---
@@ -133,6 +134,7 @@ Key decisions:
 - All queries filter by both \_id and user to ensure users can only access their own projects
 - findOneAndUpdate used instead of findByIdAndUpdate to allow filtering by both \_id and user
 - populate("user", "name email") used to return user info with project data
+- Added filter for drafts in the controller to only return non-draft projects.
 
 **Bugs fixed:**
 
