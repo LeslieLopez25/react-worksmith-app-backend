@@ -34,6 +34,21 @@ const projectSchema = new mongoose.Schema(
       enum: ["idea", "in-progress", "on-hold", "completed", "archived"],
       default: "idea",
     },
+    projectType: {
+      type: String,
+      enum: [
+        "frontend",
+        "backend",
+        "fullstack",
+        "design",
+        "research",
+        "documentation",
+      ],
+    },
+    isDraft: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true },
 );

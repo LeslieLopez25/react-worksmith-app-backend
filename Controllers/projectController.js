@@ -25,7 +25,10 @@ export const createProject = async (req, res) => {
 
 export const getAllProjects = async (req, res) => {
   try {
-    const projects = await Project.find().populate("user", "name email");
+    const projects = await Project.find({
+      user: req.user._id,
+      isDraft: false,
+    }).populate("user", "name email");
     res.status(200).json(projects);
   } catch (error) {
     res.status(500).json({ message: error.message });
