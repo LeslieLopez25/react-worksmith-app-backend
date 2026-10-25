@@ -142,6 +142,10 @@ Key decisions:
 
 - Added filter for drafts in the controller to only return non-draft projects.
 
+## October 24, 2026
+
+- Updated projectController by adding projectType, status, and isDraft to createProject function.
+
 **Bugs fixed:**
 
 - populate() was being passed a filter object instead of a field name string — Mongoose was interpreting it as a callback, causing next is not a function error
