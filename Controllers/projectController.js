@@ -2,17 +2,18 @@ import Project from "../Models/project.js";
 
 export const createProject = async (req, res) => {
   try {
-    const { title, description } = req.body;
-    if (!title || !description) {
-      return res
-        .status(400)
-        .json({ message: "Title and description are required" });
+    const { title, description, status, projectType, isDraft } = req.body;
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
     }
 
     const project = new Project({
       title,
       description,
-      user: req.user?._id,
+      status,
+      projectType,
+      isDraft: isDraft || false,
+      user: req.user._id,
     });
 
     const savedProject = await project.save();
