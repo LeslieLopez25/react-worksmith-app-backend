@@ -18,6 +18,7 @@ const projectSchema = new mongoose.Schema(
       {
         url: String,
         filename: String,
+        description: String,
       },
     ],
     notes: [
