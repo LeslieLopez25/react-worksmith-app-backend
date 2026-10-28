@@ -65,6 +65,10 @@ Key decisions:
 
 - Added isDraft and projectType in project.js
 
+## October 27, 2026
+
+- Updated project schema to have description added to it.
+
 ---
 
 #### **task.js**
