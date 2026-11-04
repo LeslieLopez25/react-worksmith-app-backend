@@ -2,7 +2,7 @@ import Task from "../Models/task.js";
 
 export const createTask = async (req, res) => {
   try {
-    const { title, description, status } = req.body;
+    const { title, description, status, urgency, taskType } = req.body;
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
     }
@@ -11,6 +11,8 @@ export const createTask = async (req, res) => {
       title,
       description,
       status,
+      urgency,
+      taskType,
       project: req.params.projectId,
       user: req.user._id,
     });
@@ -29,11 +31,6 @@ export const getTasksByProject = async (req, res) => {
       project: req.params.projectId,
       user: req.user._id,
     }).populate("project", "title");
-    if (tasks.length === 0)
-      return res
-        .status(404)
-        .json({ message: "No tasks found for this project" });
-
     res.status(200).json(tasks);
   } catch (error) {
     res.status(500).json({ message: error.message });
