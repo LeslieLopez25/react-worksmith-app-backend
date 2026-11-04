@@ -86,6 +86,10 @@ Key decisions:
 
 - timestamps: true was inside the schema fields object instead of the options object and was capitalized — moved to second argument as { timestamps: true }
 
+## November 4, 2026
+
+- Added urgency and taskType to task schema.
+
 ---
 
 ### Controllers Created
@@ -174,6 +178,10 @@ Key decisions:
 - id used instead of \_id in update and delete queries — MongoDB uses \_id
 - Duplicate import of Task model — removed the lowercase duplicate
 - During testing, user ID was accidentally used instead of project ID in the URL — fixed by using the correct project ID
+
+## November 4, 2026
+
+- Added urgency and taskType to create task and removed !description only having !title as it is checked in the frontend.
 
 ---
 
