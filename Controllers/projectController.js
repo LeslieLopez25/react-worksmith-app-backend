@@ -1,4 +1,6 @@
 import Project from "../Models/project.js";
+import fs from "fs";
+import cloudinary from "../utils/cloudinary.js";
 
 export const createProject = async (req, res) => {
   try {
@@ -62,6 +64,41 @@ export const updateProject = async (req, res) => {
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.status(200).json(project);
   } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const addProjectImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ message: "Image file is required" });
+    }
+
+    const project = await Project.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+    if (!project) {
+      fs.unlink(req.file.path, () => {});
+      return res.status(404).json({ message: "Project not found" });
+    }
+
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "worksmith",
+    });
+    fs.unlink(req.file.path, () => {});
+
+    project.images.push({
+      url: result.secure_url,
+      publicId: result.public_id,
+      filename: req.body.title,
+      description: req.body.description,
+    });
+    await project.save();
+
+    res.status(201).json(project);
+  } catch (error) {
+    if (req.file) fs.unlink(req.file.path, () => {});
     res.status(500).json({ message: error.message });
   }
 };

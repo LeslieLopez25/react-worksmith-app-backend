@@ -19,6 +19,7 @@ const projectSchema = new mongoose.Schema(
         url: String,
         filename: String,
         description: String,
+        publicId: String,
       },
     ],
     notes: [
