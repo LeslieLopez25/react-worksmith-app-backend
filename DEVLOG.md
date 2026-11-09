@@ -154,6 +154,10 @@ Key decisions:
 
 - Updated projectController by adding projectType, status, and isDraft to createProject function.
 
+## November 9, 2026
+
+- Created a function to upload the image adding all its logic.
+
 **Bugs fixed:**
 
 - populate() was being passed a filter object instead of a field name string — Mongoose was interpreting it as a callback, causing next is not a function error
@@ -204,6 +208,10 @@ Exports: upload (default)
 - Allowed file types: image/jpeg, image/png, image/jpg
 - File size limit: 5MB
 
+## November 9, 2026
+
+- Replaced the filename function.
+
 **Bugs fixed:**
 
 - Duplicate filename field in diskStorage config — kept only one
@@ -218,6 +226,10 @@ Exports: upload (default)
 - userRoutes.js
 - projectRoutes.js
 - taskRoutes.js
+
+## November 9, 2026
+
+- Added addProjectImage route with the other existing routes.
 
 ---
 
