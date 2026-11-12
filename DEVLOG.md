@@ -69,6 +69,10 @@ Key decisions:
 
 - Updated project schema to have description added to it.
 
+## November 12, 2026
+
+- Added `publicId` to each image in the images array so the file can be removed from Cloudinary when an image card is replaced or deleted.
+
 ---
 
 #### **task.js**
@@ -163,6 +167,27 @@ Key decisions:
 - populate() was being passed a filter object instead of a field name string — Mongoose was interpreting it as a callback, causing next is not a function error
 - findByIdAndDelete changed to findOneAndDelete to support filtering by both \_id and user
 
+## November 12, 2026
+
+- Added updateProjectImage, deleteProjectImage, updateProjectNote, and deleteProjectNote.
+- Each one finds the project by `_id` and `user`, then finds the image or note with `.id()` and removes it with `.pull()`, so only that one item is changed.
+- updateProjectImage changes the title and description, and can optionally replace the image. A replacement is uploaded to Cloudinary, and the old file is deleted only after the save succeeds.
+- deleteProjectImage removes the card and its Cloudinary file using `publicId`.
+- updateProjectNote only changes the content, so the note keeps its original timestamp.
+- Added two small helpers, findOwnedProject and removeTempFile, to keep the new functions short.
+- addProjectImage now saves the Cloudinary `publicId` along with the url, title, and description.
+
+**Security fixes:**
+
+- getProjectById now filters by `user` as well as `_id`. Before, any logged-in user could open another user's project if they had its ID.
+- getProjectById checks that the ID is valid and returns a generic error message instead of the raw Mongoose message.
+- updateProject now only accepts title, description, status, projectType, isDraft, and notes instead of passing `req.body` straight through. Images are only changed through the image routes. Passing everything through would have let a user overwrite fields like `user` or an image's `publicId`.
+- Added `runValidators: true` to updateProject so the status and project type enums are enforced on updates.
+
+**Bugs fixed:**
+
+- Forgot to import `mongoose` in the controller. getProjectById threw a ReferenceError, the 500 response was hidden behind the frontend's "Project not found" message, and every project failed to load.
+
 ---
 
 #### **taskController.js**
@@ -182,6 +207,12 @@ Key decisions:
 - id used instead of \_id in update and delete queries — MongoDB uses \_id
 - Duplicate import of Task model — removed the lowercase duplicate
 - During testing, user ID was accidentally used instead of project ID in the URL — fixed by using the correct project ID
+
+## November 12, 2026
+
+- createTask now checks that the project in the URL belongs to the logged-in user before creating the task.
+- updateTask now only accepts title, description, status, urgency, and taskType, with `runValidators: true`, so a user can't change a task's `project` or `user`.
+- getTasksByProject no longer returns a 404 when a project has no tasks. An empty board isn't an error, and it was showing a red toast every time an empty board was opened.
 
 ## November 4, 2026
 
@@ -218,6 +249,24 @@ Exports: upload (default)
 - file.filename referenced before it exists — changed to file.originalname
 - cb was being called twice in fileFilter — the error callback was always running even for valid files
 
+## November 12, 2026
+
+- The filename function now keeps the original file extension using `path.extname`. Before, names looked like `photo.png-1730...` with the extension in the middle.
+
+---
+
+### Utils Created
+
+#### **cloudinary.js**
+
+- Configured the Cloudinary v2 SDK with the cloud name, API key, and API secret from the environment variables.
+- Added `import "dotenv/config"` at the top of the file. Imports run before `dotenv.config()` in server.js, so without it all three values were undefined.
+
+**Bugs fixed:**
+
+- Mixed ES module `import` with CommonJS `module.exports` — standardized to ES modules.
+- Imported the default `cloudinary` instead of `v2`.
+
 ---
 
 ### Routes Created
@@ -230,6 +279,12 @@ Exports: upload (default)
 ## November 9, 2026
 
 - Added addProjectImage route with the other existing routes.
+
+## November 12, 2026
+
+- Added `PATCH /api/projects/:id/images/:imageId` and `DELETE /api/projects/:id/images/:imageId`.
+- Added `PATCH /api/projects/:id/notes/:noteId` and `DELETE /api/projects/:id/notes/:noteId`.
+- Moved the Multer wrapper into one reusable function, uploadSingleImage, used by both the upload and the edit image routes. It turns Multer errors (wrong file type, file over 5MB) into a JSON message so the toast on the frontend can show it, instead of Express sending back an HTML error page.
 
 ---
 
@@ -260,6 +315,11 @@ All routes tested using **Thunder Client** in VS Code.
 - Project Routes
 - Task Routes
 
+## November 12, 2026
+
+- Tested the new image and note routes through the frontend: edit title and description, replace an image, delete an image card, edit a note, delete a note.
+- Confirmed in the Cloudinary media library that replaced and deleted images are removed from the `worksmith` folder and that no leftover files stay in `uploads/`.
+
 ---
 
 ### Environment Variables Required
@@ -270,6 +330,16 @@ JWT_SECRET=yourlongrandomunguessablestring
 JWT_EXPIRES=1d
 FRONTEND_URL=http://localhost:5173
 PORT=7000
+```
+
+## November 12, 2026
+
+- Added the Cloudinary values:
+
+```
+CLOUDINARY_CLOUD_NAME=your_cloud_name
+CLOUDINARY_API_KEY=your_api_key
+CLOUDINARY_SECRET_KEY=your_api_secret
 ```
 
 ---
