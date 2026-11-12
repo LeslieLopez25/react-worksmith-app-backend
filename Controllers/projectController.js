@@ -1,6 +1,14 @@
+import mongoose from "mongoose";
 import Project from "../Models/project.js";
 import fs from "fs";
 import cloudinary from "../utils/cloudinary.js";
+
+const findOwnedProject = (req) =>
+  Project.findOne({ _id: req.params.id, user: req.user._id });
+
+const removeTempFile = (req) => {
+  if (req.file) fs.unlink(req.file.path, () => {});
+};
 
 export const createProject = async (req, res) => {
   try {
@@ -40,26 +48,43 @@ export const getAllProjects = async (req, res) => {
 
 export const getProjectById = async (req, res) => {
   try {
-    const project = await Project.findById(req.params.id).populate(
-      "user",
-      "name email",
-    );
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(404).json({ message: "Project not found" });
+    }
+    const project = await Project.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.status(200).json(project);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    console.error(error);
+    res.status(500).json({ message: "Failed to load project" });
   }
 };
 
 export const updateProject = async (req, res) => {
   try {
+    const allowed = [
+      "title",
+      "description",
+      "status",
+      "projectType",
+      "isDraft",
+      "notes",
+    ];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
     const project = await Project.findOneAndUpdate(
       {
         _id: req.params.id,
         user: req.user._id,
       },
-      req.body,
-      { new: true },
+      updates,
+      { new: true, runValidators: true },
     );
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.status(200).json(project);
@@ -111,6 +136,100 @@ export const deleteProject = async (req, res) => {
     });
     if (!project) return res.status(404).json({ message: "Project not found" });
     res.status(200).json({ message: "Project deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateProjectImage = async (req, res) => {
+  try {
+    const project = await findOwnedProject(req);
+    const image = project?.images.id(req.params.imageId);
+    if (!image) {
+      removeTempFile(req);
+      return res.status(404).json({ message: "Image not found" });
+    }
+
+    const { title, description } = req.body;
+    if (title !== undefined) image.filename = title;
+    if (description !== undefined) image.description = description;
+
+    let oldPublicId = null;
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "worksmith",
+      });
+      removeTempFile(req);
+      oldPublicId = image.publicId;
+      image.url = result.secure_url;
+      image.publicId = result.public_id;
+    }
+
+    await project.save();
+
+    // Only remove the old file from Cloudinary after the save succeeded
+    if (oldPublicId) {
+      cloudinary.uploader
+        .destroy(oldPublicId)
+        .catch((err) => console.error(err));
+    }
+
+    res.status(200).json(project);
+  } catch (error) {
+    removeTempFile(req);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteProjectImage = async (req, res) => {
+  try {
+    const project = await findOwnedProject(req);
+    const image = project?.images.id(req.params.imageId);
+    if (!image) return res.status(404).json({ message: "Image not found" });
+
+    const publicId = image.publicId;
+    project.images.pull(req.params.imageId);
+    await project.save();
+
+    if (publicId) {
+      cloudinary.uploader.destroy(publicId).catch((err) => console.error(err));
+    }
+
+    res.status(200).json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const updateProjectNote = async (req, res) => {
+  try {
+    const { content } = req.body;
+    if (!content || !content.trim()) {
+      return res.status(400).json({ message: "Note content is required" });
+    }
+
+    const project = await findOwnedProject(req);
+    const note = project?.notes.id(req.params.noteId);
+    if (!note) return res.status(404).json({ message: "Note not found" });
+
+    note.content = content;
+    await project.save();
+    res.status(200).json(project);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+export const deleteProjectNote = async (req, res) => {
+  try {
+    const project = await findOwnedProject(req);
+    const note = project?.notes.id(req.params.noteId);
+    if (!note) return res.status(404).json({ message: "Note not found" });
+
+    project.notes.pull(req.params.noteId);
+    await project.save();
+
+    res.status(200).json(project);
   } catch (error) {
     res.status(500).json({ message: error.message });
   }

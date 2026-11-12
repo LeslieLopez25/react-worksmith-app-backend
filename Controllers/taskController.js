@@ -1,7 +1,14 @@
 import Task from "../Models/task.js";
+import Project from "../Models/project.js";
 
 export const createTask = async (req, res) => {
   try {
+    const project = await Project.findOne({
+      _id: req.params.projectId,
+      user: req.user._id,
+    });
+    if (!project) return res.status(404).json({ message: "Project not found" });
+
     const { title, description, status, urgency, taskType } = req.body;
     if (!title) {
       return res.status(400).json({ message: "Title is required" });
@@ -39,13 +46,19 @@ export const getTasksByProject = async (req, res) => {
 
 export const updateTask = async (req, res) => {
   try {
+    const allowed = ["title", "description", "status", "urgency", "taskType"];
+    const updates = {};
+    for (const key of allowed) {
+      if (req.body[key] !== undefined) updates[key] = req.body[key];
+    }
+
     const task = await Task.findOneAndUpdate(
       {
         _id: req.params.taskId,
         user: req.user._id,
       },
-      req.body,
-      { new: true },
+      updates,
+      { new: true, runValidators: true },
     );
     if (!task) return res.status(404).json({ message: "Task not found" });
     res.status(200).json(task);
