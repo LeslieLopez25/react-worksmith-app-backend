@@ -73,6 +73,10 @@ Key decisions:
 
 - Added `publicId` to each image in the images array so the file can be removed from Cloudinary when an image card is replaced or deleted.
 
+## November 20, 2026
+
+- No schema change was needed for the rich-text editor. The description is now stored as an HTML string (for example `<p>Hello <strong>world</strong></p>`) in the existing `description` field. Older plain-text descriptions still work because plain text is valid in the same field.
+
 ---
 
 #### **task.js**
@@ -188,6 +192,12 @@ Key decisions:
 
 - Forgot to import `mongoose` in the controller. getProjectById threw a ReferenceError, the 500 response was hidden behind the frontend's "Project not found" message, and every project failed to load.
 
+## November 14, 2026
+
+- Added getDraftProjects. It returns the logged-in user's projects where `isDraft` is true, newest edited first.
+- getAllProjects still only returns non-drafts, so a draft stays off the home page until it is published.
+- Publishing a draft needed no new backend code. updateProject already accepts `isDraft` in its whitelist, so the frontend just sends `{ isDraft: false }`.
+
 ---
 
 #### **taskController.js**
@@ -286,6 +296,11 @@ Exports: upload (default)
 - Added `PATCH /api/projects/:id/notes/:noteId` and `DELETE /api/projects/:id/notes/:noteId`.
 - Moved the Multer wrapper into one reusable function, uploadSingleImage, used by both the upload and the edit image routes. It turns Multer errors (wrong file type, file over 5MB) into a JSON message so the toast on the frontend can show it, instead of Express sending back an HTML error page.
 
+## November 14, 2026
+
+- Added `GET /api/projects/drafts`.
+- It has to be registered above `GET /api/projects/:id`. If it comes after, Express treats "drafts" as a project ID and the response is "Project not found".
+
 ---
 
 ### Server Setup (server.js)
@@ -319,6 +334,10 @@ All routes tested using **Thunder Client** in VS Code.
 
 - Tested the new image and note routes through the frontend: edit title and description, replace an image, delete an image card, edit a note, delete a note.
 - Confirmed in the Cloudinary media library that replaced and deleted images are removed from the `worksmith` folder and that no leftover files stay in `uploads/`.
+
+## November 14, 2026
+
+- Tested the drafts flow through the frontend: Save as Draft keeps the project off the home page and lists it on the Drafts page, Publish moves it to the home page, and Delete removes it.
 
 ---
 
@@ -366,3 +385,9 @@ CLOUDINARY_SECRET_KEY=your_api_secret
 #### **authRoutes.js**
 
 - Added getMe to authRoutes file.
+
+---
+
+## Before deploying to AWS
+
+- Description HTML is cleaned in the browser with DOMPurify before it is displayed. Consider sanitizing it on the server before saving as well.
