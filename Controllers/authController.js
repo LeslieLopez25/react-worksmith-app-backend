@@ -39,6 +39,7 @@ export const register = async (req, res) => {
         name: savedUser.name,
         email: savedUser.email,
         role: savedUser.role,
+        theme: savedUser.theme,
       },
     });
   } catch (error) {
@@ -78,6 +79,7 @@ export const loginUser = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        theme: user.theme,
       },
     });
   } catch (error) {

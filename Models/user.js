@@ -27,6 +27,10 @@ const userSchema = new mongoose.Schema(
       enum: ["user", "admin"],
       default: "user",
     },
+    theme: {
+      type: String,
+      enum: ["worksmithLight", "worksmithDark"],
+    },
   },
   { timestamps: true },
 );
