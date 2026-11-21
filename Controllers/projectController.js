@@ -234,3 +234,15 @@ export const deleteProjectNote = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
+export const getDraftProjects = async (req, res) => {
+  try {
+    const drafts = await Project.find({
+      user: req.user._id,
+      isDraft: true,
+    }).sort({ updatedAt: -1 });
+    res.status(200).json(drafts);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};

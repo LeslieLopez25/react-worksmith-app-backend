@@ -10,6 +10,7 @@ import {
   deleteProjectImage,
   updateProjectNote,
   deleteProjectNote,
+  getDraftProjects,
 } from "../Controllers/projectController.js";
 import { authMiddleware } from "../middleware/authMiddleware.js";
 import upload from "../middleware/uploadMiddleware.js";
@@ -23,6 +24,7 @@ const uploadSingleImage = (req, res, next) => {
 };
 
 router.get("/", authMiddleware, getAllProjects);
+router.get("/drafts", authMiddleware, getDraftProjects);
 router.get("/:id", authMiddleware, getProjectById);
 router.post("/", authMiddleware, upload.array("images", 5), createProject);
 router.post("/:id/images", authMiddleware, uploadSingleImage, addProjectImage);
