@@ -48,6 +48,11 @@ Key decisions:
 - In newer versions of Mongoose, pre-save hook no longer accepts next as a parameter the same way — removed next entirely and used throw err instead
 - Missing await on bcrypt.compare() in comparePassword method
 
+## November 20, 2026
+
+- Added a `theme` field with the values `worksmithLight` and `worksmithDark`.
+- It deliberately has no default. An account that has never saved a theme keeps whatever theme its browser already has until the first time the toggle is used, instead of being forced to light.
+
 ---
 
 #### **project.js**
@@ -130,6 +135,11 @@ Key decisions:
 - Clearcookie was lowercase — corrected to clearCookie
 - JWT_EXPIRE typo in authController.js didn't match JWT_EXPIRES in .env — added the missing S
 
+## November 20, 2026
+
+- loginUser and register now include `theme` in the user object they return, so the saved theme can be applied as soon as someone logs in.
+- getMe needed no change because it already returns the whole user, so the theme comes back on every refresh check too.
+
 ---
 
 #### **userController.js**
@@ -141,6 +151,11 @@ Key decisions:
 - .select("-password") used on all queries that return user data
 - updatePassword uses user.save() instead of findByIdAndUpdate to ensure the pre-save hash hook runs
 - deleteUser clears the auth cookie after deleting the account
+
+## November 20, 2026
+
+- Added updateTheme. It only accepts one of the two theme names, saves it with `runValidators: true`, and returns the user without the password.
+- It is a separate function from updateUser so a name or email update can never change the theme by accident.
 
 ---
 
@@ -301,6 +316,10 @@ Exports: upload (default)
 - Added `GET /api/projects/drafts`.
 - It has to be registered above `GET /api/projects/:id`. If it comes after, Express treats "drafts" as a project ID and the response is "Project not found".
 
+## November 20, 2026
+
+- Added `PATCH /api/users/profile/theme` to userRoutes.js.
+
 ---
 
 ### Server Setup (server.js)
@@ -338,6 +357,10 @@ All routes tested using **Thunder Client** in VS Code.
 ## November 14, 2026
 
 - Tested the drafts flow through the frontend: Save as Draft keeps the project off the home page and lists it on the Drafts page, Publish moves it to the home page, and Delete removes it.
+
+## November 22, 2026
+
+- Tested theme persistence through the frontend: switching themes returns a 200 with the theme in the response, the theme shows up on the user document in Atlas, and it is returned again on login and on the refresh check.
 
 ---
 
